@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Developer Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Developer Dashboard</h1>
+    <p class="subtitle">Read-only inspection of application data, via the backend API — never a direct database connection.</p>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="overview" class="tab active">Overview</button>
+    <button data-tab="products" class="tab">Products DB Viewer</button>
+    <button data-tab="goals" class="tab">Goals &amp; Rules</button>
+    <button data-tab="search" class="tab">Search Debugger</button>
+    <button data-tab="sync" class="tab">Synchronization Status</button>
+    <button data-tab="health" class="tab">System Health</button>
+    <button data-tab="audit" class="tab">Audit Logs</button>
+  </nav>
+
+  <main id="app">
+    <section id="panel-overview" class="panel active">
+      <h2>Overview</h2>
+      <div id="overview-content" class="cards"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section id="panel-products" class="panel">
+      <h2>Products Database Viewer</h2>
+      <div class="controls">
+        <select id="products-shop"></select>
+        <input id="products-search" type="text" placeholder="Search by SKU, title, or handle" />
+        <button id="products-search-btn">Search</button>
+      </div>
+      <div id="products-table-wrap"><p class="muted">Select a shop above.</p></div>
+      <div class="pager">
+        <button id="products-prev">Previous</button>
+        <span id="products-page-label"></span>
+        <button id="products-next">Next</button>
+      </div>
+    </section>
+
+    <section id="panel-goals" class="panel">
+      <h2>Goals &amp; Rules</h2>
+      <div class="controls">
+        <select id="goals-shop"></select>
+      </div>
+      <div id="goals-content"><p class="muted">Select a shop above.</p></div>
+    </section>
+
+    <section id="panel-search" class="panel">
+      <h2>Search Debugger</h2>
+      <div class="controls">
+        <select id="search-shop"></select>
+        <input id="search-query" type="text" placeholder="Search query" />
+        <select id="search-mode">
+          <option value="final">final</option>
+          <option value="preview">preview</option>
+        </select>
+        <button id="search-run">Run</button>
+      </div>
+      <p class="muted">
+        Only what the backend's search API actually returns is shown below.
+        Candidate counts, retrieval timings, and internal ranking details are
+        written only to the backend's server logs, never to the HTTP
+        response — so they cannot be displayed here.
+      </p>
+      <div id="search-results"></div>
+    </section>
+
+    <section id="panel-sync" class="panel">
+      <h2>Synchronization Status</h2>
+      <p class="muted">
+        There is no dedicated sync-log table in this app. "Last synced" is
+        derived from the most recent product update timestamp per shop —
+        a real signal, not an invented one.
+      </p>
+      <div id="sync-content"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section id="panel-health" class="panel">
+      <h2>System Health</h2>
+      <div id="health-content"><p class="muted">Loading…</p></div>
+    </section>
+
+    <section id="panel-audit" class="panel">
+      <h2>Audit Logs</h2>
+      <p class="muted">
+        No audit-log system exists in this application yet — there is no
+        table or mechanism recording who changed what and when. This
+        section requires a separate future implementation; nothing here is
+        simulated.
+      </p>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
