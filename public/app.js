@@ -198,7 +198,7 @@ async function loadProducts(page = 1) {
           ${products.map((p) => `
             <tr>
               <td>${p.image ? `<img class="thumb" src="${escapeHtml(p.image)}" alt="" />` : ""}</td>
-              <td>${escapeHtml(p.sku)}</td>
+              <td>${escapeHtml(p.sku || "(no SKU)")}</td>
               <td>${escapeHtml(p.title)}</td>
               <td>${escapeHtml(p.handle)}</td>
               <td>${typeof p.price === "number" ? `$${p.price.toFixed(2)}` : "—"}</td>
@@ -307,7 +307,7 @@ async function runSearchDebug() {
       ? `<p class="muted">No products returned.</p>`
       : products.map((p, i) => `
           <div class="result-item">
-            <strong>#${i + 1}</strong> ${escapeHtml(p.title)} — SKU ${escapeHtml(p.sku)}
+            <strong>#${i + 1}</strong> ${escapeHtml(p.title)} — SKU ${escapeHtml(p.sku || "(none)")}
             ${typeof p.recommendationScore === "number" ? ` (score ${p.recommendationScore})` : ""}
           </div>
         `).join("")
