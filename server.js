@@ -26,7 +26,18 @@ const fs = require("fs");
 const path = require("path");
 
 const PORT = Number(process.env.DEV_DASHBOARD_PORT || 3001);
-const BACKEND_ENV_PATH = path.join(__dirname, "..", "backend", ".env");
+/*
+ * The backend repo may sit next to this one as either
+ * `backend/` or `search-BE/`. BACKEND_ENV_PATH overrides both.
+ */
+const BACKEND_ENV_CANDIDATES = [
+  process.env.BACKEND_ENV_PATH,
+  path.join(__dirname, "..", "backend", ".env"),
+  path.join(__dirname, "..", "search-BE", ".env")
+].filter(Boolean);
+const BACKEND_ENV_PATH =
+  BACKEND_ENV_CANDIDATES.find((candidate) => fs.existsSync(candidate)) ||
+  BACKEND_ENV_CANDIDATES[0];
 const PUBLIC_DIR = path.join(__dirname, "public");
 
 // =========================================================
@@ -81,7 +92,7 @@ const INTERNAL_API_SECRET = backendEnv.INTERNAL_API_SECRET || "";
 
 if (!INTERNAL_API_SECRET) {
   console.warn(
-    "[DEV DASHBOARD] INTERNAL_API_SECRET was not found in backend/.env — " +
+    `[DEV DASHBOARD] INTERNAL_API_SECRET was not found in ${BACKEND_ENV_PATH} — ` +
       "status/products/goal proxy calls will fail until it is set."
   );
 }
