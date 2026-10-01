@@ -22,10 +22,18 @@
 // =========================================================
 
 const http = require("http");
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
 const PORT = Number(process.env.DEV_DASHBOARD_PORT || 3001);
+
+// Loopback only by default: this dashboard can read every
+// shop's data, so it must not be reachable from other machines.
+const HOST = process.env.DEV_DASHBOARD_HOST || "127.0.0.1";
+
+// Optional HTTP Basic Auth (any username, this password).
+const DASHBOARD_PASSWORD = process.env.DEV_DASHBOARD_PASSWORD || "";
 /*
  * The backend repo may sit next to this one as either
  * `backend/` or `search-BE/`. BACKEND_ENV_PATH overrides both.
@@ -182,10 +190,44 @@ function serveStatic(req, res, pathname) {
 }
 
 // =========================================================
+// OPTIONAL PASSWORD
+// =========================================================
+
+function isAuthorized(req) {
+  if (!DASHBOARD_PASSWORD) {
+    return true;
+  }
+
+  const header = req.headers.authorization || "";
+
+  if (!header.startsWith("Basic ")) {
+    return false;
+  }
+
+  const decoded = Buffer.from(header.slice(6), "base64").toString("utf8");
+  const password = decoded.slice(decoded.indexOf(":") + 1);
+
+  // Hash both sides so the comparison is constant-time and
+  // length-independent.
+  const hash = (value) => crypto.createHash("sha256").update(value).digest();
+
+  return crypto.timingSafeEqual(hash(password), hash(DASHBOARD_PASSWORD));
+}
+
+// =========================================================
 // ROUTES
 // =========================================================
 
 const server = http.createServer(async (req, res) => {
+  if (!isAuthorized(req)) {
+    res.writeHead(401, {
+      "WWW-Authenticate": 'Basic realm="Developer Dashboard"',
+      "Content-Type": "text/plain"
+    });
+    res.end("Authentication required");
+    return;
+  }
+
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
   if (url.pathname === "/dev-api/status") {
@@ -243,7 +285,14 @@ const server = http.createServer(async (req, res) => {
   return serveStatic(req, res, url.pathname);
 });
 
-server.listen(PORT, () => {
-  console.log(`[DEV DASHBOARD] Serving on http://localhost:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`[DEV DASHBOARD] Serving on http://${HOST}:${PORT}`);
+
+  if (!DASHBOARD_PASSWORD && HOST !== "127.0.0.1" && HOST !== "localhost") {
+    console.warn(
+      "[DEV DASHBOARD] Listening beyond loopback with no DEV_DASHBOARD_PASSWORD — anyone who can reach this port can read every shop's data."
+    );
+  }
+
   console.log(`[DEV DASHBOARD] Proxying to backend at ${BACKEND_URL}`);
 });
