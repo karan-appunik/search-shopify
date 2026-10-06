@@ -98,7 +98,7 @@ async function loadOverviewAndHealth() {
     <div class="card"><div class="label">Available</div><div class="value">${g.products.available}</div></div>
     <div class="card"><div class="label">Unavailable</div><div class="value">${g.products.unavailable}</div></div>
     <div class="card"><div class="label">Total goals/rules</div><div class="value">${g.goals.total}</div></div>
-    <div class="card"><div class="label">Qdrant</div><div class="value">${badge(g.qdrant.reachable)}</div></div>
+    <div class="card"><div class="label">Vector search</div><div class="value">${badge(g.vectorSearch?.reachable)}</div></div>
     <div class="card"><div class="label">Embedding service</div><div class="value">${badge(g.embeddingService.reachable)}</div></div>
   `;
 
@@ -108,7 +108,7 @@ async function loadOverviewAndHealth() {
       <tbody>
         <tr><td>Backend API</td><td>${badge(true)}</td><td>responded to /api/internal/status</td></tr>
         <tr><td>MongoDB connection</td><td>${badge(g.mongo.connected)}</td><td>${escapeHtml(g.mongo.state)}</td></tr>
-        <tr><td>Qdrant connection</td><td>${badge(g.qdrant.reachable)}</td><td>collection "${escapeHtml(g.qdrant.collection)}"${g.qdrant.pointsCount != null ? `, ${g.qdrant.pointsCount} points` : ""}</td></tr>
+        <tr><td>Vector search (MongoDB)</td><td>${badge(g.vectorSearch?.reachable)}</td><td>${g.vectorSearch?.pointsCount != null ? `${g.vectorSearch.pointsCount} products with vectors` : "—"}${g.vectorSearch?.productsWithoutVectors ? `, ${g.vectorSearch.productsWithoutVectors} still to index (run npm run index:products)` : ""}</td></tr>
         <tr><td>Embedding service (Qwen/Ollama local)</td><td>${badge(g.embeddingService.reachable)}</td><td>${escapeHtml(g.embeddingService.model || "not configured")}</td></tr>
         <tr><td>LLM service (GLM/Ollama cloud)</td><td>${badge(g.llmService.reachable)}</td><td>${escapeHtml(g.llmService.model || "not configured")}</td></tr>
       </tbody>
